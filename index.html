@@ -16,6 +16,9 @@
     --accent-soft:#e0f2fe;
     --warn:#b45309;
     --warn-soft:#fff7ed;
+    --success:#166534;
+    --success-bg:#f0fdf4;
+    --success-border:#bbf7d0;
     --radius:16px;
     --shadow:0 1px 2px rgba(15,23,42,.04), 0 8px 24px -12px rgba(15,23,42,.18);
   }
@@ -163,6 +166,64 @@
   tbody tr:nth-child(even){background:#fbfcfe}
   td strong{color:var(--ink)}
 
+  /* RFQ Table Specifics */
+  .rfq-table { min-width: 2700px; } /* Увеличена ширина под новую колонку */
+  .rfq-table th, .rfq-table td { font-size: 0.85rem; padding: 10px 12px; }
+  .rfq-table th { background:#e2e8f0; color:#1e293b; }
+
+  /* Interactive Inputs */
+  .calc-input {
+    width: 100px;
+    padding: 6px 8px;
+    border: 1px solid #cbd5e1;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    background-color: #fef9c3; /* Желтоватый фон для ввода */
+    transition: border-color 0.2s, background-color 0.2s;
+  }
+  .calc-input:focus {
+    outline: none;
+    border-color: var(--accent);
+    background-color: #fff;
+    box-shadow: 0 0 0 2px var(--accent-soft);
+  }
+  .cost-value {
+    font-weight: 800;
+    color: var(--success);
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    padding: 6px 10px;
+    border-radius: 6px;
+    display: inline-block;
+    min-width: 80px;
+    text-align: right;
+  }
+
+  /* Calculator Summary */
+  .calc-summary {
+    background: var(--success-bg);
+    border: 1px solid var(--success-border);
+    border-radius: var(--radius);
+    padding: 20px;
+    margin-bottom: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 16px;
+  }
+  .calc-summary h3 { margin: 0; color: var(--success); font-size: 1.1rem; }
+  .calc-summary .total-value {
+    font-size: 1.6rem;
+    font-weight: 800;
+    color: var(--success);
+    background: #fff;
+    padding: 8px 16px;
+    border-radius: 12px;
+    border: 1px solid var(--success-border);
+    box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+  }
+
   /* Lists */
   ul.clean{margin:0;padding-left:0;list-style:none}
   ul.clean li{position:relative;padding-left:26px;margin-bottom:10px}
@@ -263,6 +324,8 @@
     .card,details.step,.metric,.table-wrap{box-shadow:none;break-inside:avoid}
     details.step .body{display:block!important}
     details.step{break-inside:avoid}
+    .rfq-table { min-width: 100%; font-size: 8px; } /* Уменьшаем шрифт для печати */
+    .calc-input { border: none; background: transparent; padding: 0; }
   }
 </style>
 </head>
@@ -298,6 +361,7 @@
     <a href="#run">Запуск</a>
     <a href="#safety">Безопасность</a>
     <a href="#lab">Лаборатория</a>
+    <a href="#materials">Сырьё (RFQ)</a>
   </div>
 </nav>
 
@@ -997,6 +1061,485 @@
     </div>
   </section>
 
+  <!-- Раздел 10: Сырьё и материалы (RFQ) -->
+  <section id="materials" class="tab-section">
+    <div class="section-head">
+      <div class="section-num">10</div>
+      <h2>Требования к сырью и материалам (RFQ)</h2>
+    </div>
+    
+    <div class="note" style="margin-bottom:20px">
+      <strong>Запрос цен (RFQ):</strong> Сырьё для подгузников для взрослых на липучках, I-образная форма. 
+      <br><em>Подсказка: таблица широкая, прокручивайте её вправо (на телефоне свайпом), чтобы увидеть все столбцы.</em>
+    </div>
+
+    <!-- Блок калькулятора -->
+    <div class="calc-summary">
+      <div>
+        <h3>Калькулятор себестоимости сырья</h3>
+        <p style="margin: 4px 0 0; font-size: 0.85rem; color: var(--success);">
+          Вводите данные в желтые поля. Если цена в USD/кг, вводите расход в граммах; если в USD/т — в граммах; если в USD/м или USD/шт — в соответствующих единицах.
+        </p>
+      </div>
+      <div class="total-value" id="total-cost-result">0.0000 USD</div>
+    </div>
+
+    <div class="card" style="padding: 0; overflow: hidden; border-left: 4px solid var(--accent);">
+      <div class="table-wrap" style="box-shadow:none; border:none; border-radius: 0;">
+        <table class="rfq-table">
+          <thead>
+            <tr>
+              <th>№</th>
+              <th>Наименование сырья</th>
+              <th>Name (EN)</th>
+              <th>Группа</th>
+              <th>Узел изделия</th>
+              <th>Марка / изготовитель</th>
+              <th>Ключевые количественные требования (кратко)</th>
+              <th>Расход на 1 шт. (г/м/шт)</th>
+              <th>На 1 млн шт., т</th>
+              <th>Ед. цены</th>
+              <th>Код ТН ВЭД ЕАЭС</th>
+              <th>Документы с партией</th>
+              <th>Поставщик</th>
+              <th>Предлагаемая марка / артикул</th>
+              <th>Цена, USD за ед.</th>
+              <th>Incoterms</th>
+              <th>MOQ</th>
+              <th>Срок поставки, дней</th>
+              <th>Остаточный срок годности, мес.</th>
+              <th>Образцы (Да/Нет)</th>
+              <th>Документы приложены (Да/Нет)</th>
+              <th>Цена, KZT за ед.</th>
+              <th>Комментарий / отклонения</th>
+              <th>Себестоимость, USD/шт</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>1</td>
+              <td>Верхний покровный нетканый материал (гидрофильный)</td>
+              <td>Hydrophilic topsheet nonwoven</td>
+              <td>Покровные слои</td>
+              <td>Верх изделия, контакт с кожей</td>
+              <td></td>
+              <td>Рулон, ширина 250±10 мм; белый; гидрофильный; проникновение 1-й порции ≤3,0 с; APEO н/о; OEKO-TEX 100 кл. I; масса г/м² и состав волокна — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5603</td>
+              <td>COA партии; OEKO-TEX 100; протокол ISO 10993-5/-10; SDS не требуется (изделие)</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>2</td>
+              <td>Приёмно-распределительный слой (ADL)</td>
+              <td>Acquisition-distribution layer (ADL)</td>
+              <td>Впитывающий слой</td>
+              <td>Под верхним покровом</td>
+              <td></td>
+              <td>Синтетический ADL; ширина 150±10 мм; длина 400 (S/M) / 420 (L) / 440 (XL/XXL) ±10 мм; масса г/м², скорость приёма 3-й порции — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5603</td>
+              <td>COA; протокол ISO 10993-5/-10 или OEKO-TEX</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>3</td>
+              <td>Верхняя санитарная бумага (tissue) — обёртка ядра</td>
+              <td>Core wrap tissue, top</td>
+              <td>Впитывающий слой</td>
+              <td>Оболочка ядра, верх</td>
+              <td></td>
+              <td>Tissue; ширина ≥160 мм (расчёт); 14–22 г/м²; влажная прочность — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>4818 / 4803</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>4</td>
+              <td>Нижняя санитарная бумага (tissue) — обёртка ядра</td>
+              <td>Core wrap tissue, bottom</td>
+              <td>Впитывающий слой</td>
+              <td>Оболочка ядра, низ</td>
+              <td></td>
+              <td>Tissue; ширина ≥320 мм (расчёт); 14–22 г/м²; влажная прочность — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>4818 / 4803</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>5</td>
+              <td>Целлюлоза распушённая (fluff pulp) — верхнее ядро</td>
+              <td>Fluff pulp (roll) — upper core</td>
+              <td>Впитывающий слой</td>
+              <td>Верхнее (малое) ядро 420/500×150 мм</td>
+              <td></td>
+              <td>100% ECF/TCF хвойная; волокно 2,2–2,8 мм; влажность 6,0–8,5%; 750–850 г/м²; Kamas <35 Вт·ч/кг; узелки <0,5%; впитывание <3,5 с; ≥9,5 г/г; белизна ≥86%; pH 6,0–7,5</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/т</td>
+              <td>4703</td>
+              <td>COA партии; сертификат FSC/PEFC (по желанию); заявление ECF/TCF</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>6</td>
+              <td>Суперабсорбент (SAP) — верхнее ядро, CR-630</td>
+              <td>SAP CR-630 — upper core</td>
+              <td>Впитывающий слой</td>
+              <td>Верхнее ядро (≈30–40% SAP)</td>
+              <td></td>
+              <td>pH 5,9–6,3; влажность ≤5,5%; FSC ≥60; CRC 40–45; AUP 0,3 psi ≥20 (цель 22); остаточный акрилат ≤300 ppm; фракции по грансоставу (см. матрицу)</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/т</td>
+              <td>3906909003</td>
+              <td>COA партии по всем КРИТ-параметрам; TDS; SDS; REACH</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>7</td>
+              <td>Целлюлоза распушённая (fluff pulp) — нижнее ядро</td>
+              <td>Fluff pulp (roll) — lower core</td>
+              <td>Впитывающий слой</td>
+              <td>Нижнее (основное) ядро, анатомич., длина 600±10 мм</td>
+              <td></td>
+              <td>Тот же сорт, что R05 (запрашивать единым лотом). Раскрой: 600±10 мм; ширины 245/155/310 ±10 мм</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/т</td>
+              <td>4703</td>
+              <td>COA партии; заявление ECF/TCF</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>8</td>
+              <td>Суперабсорбент (SAP) — нижнее ядро, AQUA KEEP</td>
+              <td>SAP Sumitomo Seika AQUA KEEP (SA60N Type II) — lower core</td>
+              <td>Впитывающий слой</td>
+              <td>Нижнее ядро (≈60–70% SAP)</td>
+              <td></td>
+              <td>Vortex 40–55 с; 600–300 мкм 65–75%; белизна ≥72; CRC 30–33; AUP 0,3 psi 28–30; влажность 3,0–5,0%; остаточный акрилат ≤300 ppm; пыль <45 мкм ≤0,1%</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/т</td>
+              <td>3906909003</td>
+              <td>COA партии; TDS; SDS; REACH</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>9</td>
+              <td>Нетканый материал защитных бортиков (гидрофобный)</td>
+              <td>Hydrophobic leg-cuff nonwoven</td>
+              <td>Покровные слои</td>
+              <td>Барьерные бортики от боковых протеканий</td>
+              <td></td>
+              <td>Гидрофобный; ширина 120±10 мм (после сложения 40±5 и 30±5 мм); гидростатический напор ≥100 мм вод. ст.; масса г/м² — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5603</td>
+              <td>COA; протокол ISO 10993-5/-10 или OEKO-TEX</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>10</td>
+              <td>Эластичные нити бортиков (спандекс), creora® H100 Diaper</td>
+              <td>Spandex yarn — leg cuff, creora H100 Diaper</td>
+              <td>Эластики</td>
+              <td>Эластик бортиков</td>
+              <td></td>
+              <td>PU-полимочевина >97%; плотность 1,0–1,2 г/см³; размягчение 170–180 °C; DMAc 0,2–0,6% (макс 1,2%); REACH; dtex, число нитей, вытяжка — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5402 44 00</td>
+              <td>COA; REACH; TDS</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>11</td>
+              <td>Эластичные нити в области ног (спандекс), creora® H100 Diaper</td>
+              <td>Spandex yarn — leg elastic, creora H100 Diaper</td>
+              <td>Эластики</td>
+              <td>Анатомическая утяжка по ноге</td>
+              <td></td>
+              <td>Спандекс; dtex, число нитей, рабочая вытяжка, остаточное удлинение — ЗАПРОС; DMAc ≤1,2%</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5402 44 00</td>
+              <td>COA; REACH; TDS</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>12</td>
+              <td>Нижняя плёнка (PE, влагонепроницаемый слой)</td>
+              <td>PE backsheet film</td>
+              <td>Покровные слои</td>
+              <td>Внешний барьерный слой</td>
+              <td></td>
+              <td>PE; ширина 390±10 мм; толщина, WVTR, гидростатический напор, смачивание ≥38 мН/м — ЗАПРОС/предложение</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>3920 10</td>
+              <td>COA; протокол безопасности для кожи; REACH</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>13</td>
+              <td>Ламинированный нетканый материал (нетканка + PE)</td>
+              <td>Laminated nonwoven (NW + PE) outer cover</td>
+              <td>Покровные слои</td>
+              <td>Внешнее текстильное покрытие</td>
+              <td></td>
+              <td>Структура ламината, ширина, г/м², прочность расслоения, гидростатический напор — ЗАПРОС. Проверить дублирование с R12</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5603 / 3921</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>14</td>
+              <td>Фронтальная лента (зона приклеивания застёжек)</td>
+              <td>Frontal landing tape</td>
+              <td>Фиксация</td>
+              <td>Зона крепления липучек спереди</td>
+              <td></td>
+              <td>Ширина материала 550±10 мм (зона 100±5 мм) — уточнить; сдвиг/отслаивание с hook-лентой, ≥5 циклов — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/м²</td>
+              <td>5806 / 5903</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>15</td>
+              <td>Боковые застёжки — крючковая лента (Hook / micro-hook)</td>
+              <td>Hook fastener tape (micro-hook)</td>
+              <td>Фиксация</td>
+              <td>Боковые «липучки»</td>
+              <td></td>
+              <td>ТОЛЬКО hook (не липкая PP-лента); ширина, плотность крючков, прочность на сдвиг/отслаивание — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/м</td>
+              <td>5806 / 6307</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>16</td>
+              <td>Нетканый материал S-раскроя (боковые эластичные «ушки»)</td>
+              <td>Elastic ear nonwoven (S-cut)</td>
+              <td>Фиксация</td>
+              <td>Боковые «ушки» (только если есть в конструкции)</td>
+              <td></td>
+              <td>УСЛОВНАЯ позиция: для I-образной формы без отдельных ушек не нужна. Размеры, г/м², возврат после растяжения — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5603 / 5806</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>17</td>
+              <td>Термоклей (расплав) T178U</td>
+              <td>Hot-melt adhesive T178U</td>
+              <td>Клеи</td>
+              <td>Скрепление слоёв и фиксация эластана</td>
+              <td></td>
+              <td>Плотность 0,96 г/см³; размягчение 84 °C; нанесение <175 °C; VOC 0%; не опасен по CLP 1272/2008; вязкость при 160 °C, открытое время, пил-тест — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>3506 91 / 3506 99</td>
+              <td>COA партии; SDS; REACH/CLP</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>18</td>
+              <td>Дополнительные сорта термоклея (эластик / стабилизация ядра / конструкционный)</td>
+              <td>Additional hot-melt grades</td>
+              <td>Клеи</td>
+              <td>По карте нанесения клея на линии</td>
+              <td></td>
+              <td>Добавлено экспертом: на практике 2–3 сорта клея; уточнить у производителя линии. Параметры как у R17</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>3506 91 / 3506 99</td>
+              <td>COA; SDS; REACH/CLP</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>19</td>
+              <td>Поясной эластик (waistband)</td>
+              <td>Waist elastic (spandex strands / film)</td>
+              <td>Эластики</td>
+              <td>Талия, спереди/сзади</td>
+              <td></td>
+              <td>Добавлено экспертом: типично для подгузников для взрослых; dtex, число нитей, вытяжка — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>5402 44 00</td>
+              <td>COA; REACH</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>20</td>
+              <td>Индикатор влажности (опция)</td>
+              <td>Wetness indicator strip (optional)</td>
+              <td>Прочее</td>
+              <td>Внешний слой, по решению</td>
+              <td></td>
+              <td>Опция: время срабатывания на 0,9% NaCl, миграция красителя — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/м</td>
+              <td>3919 / 3920</td>
+              <td>COA; протокол безопасности для кожи</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>21</td>
+              <td>Упаковочная плёнка (пакет 10/30 шт., XXL — 10 шт.)</td>
+              <td>Printed LDPE pack film</td>
+              <td>Упаковка</td>
+              <td>Потребительская упаковка</td>
+              <td></td>
+              <td>Добавлено экспертом: ширина рукава, толщина, прочность шва, печать (маркировка изделия мед. назначения) — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/кг</td>
+              <td>3923 21 / 3920 10</td>
+              <td>COA; макет маркировки</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+            <tr>
+              <td>22</td>
+              <td>Гофрокороба и скотч</td>
+              <td>Shipping cartons and tape</td>
+              <td>Упаковка</td>
+              <td>Транспортная упаковка</td>
+              <td></td>
+              <td>Добавлено экспертом: размер, марка картона, ECT, печать — ЗАПРОС</td>
+              <td><input type="number" class="calc-input input-qty" placeholder="0"></td>
+              <td></td>
+              <td>USD/шт</td>
+              <td>4819 10</td>
+              <td>COA; макет</td>
+              <td></td>
+              <td></td>
+              <td><input type="number" class="calc-input input-price" placeholder="0.00"></td>
+              <td></td><td></td><td></td><td></td><td></td><td></td><td></td><td></td>
+              <td><span class="cost-value">0.0000</span></td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </section>
+
 </main>
 
 <footer>
@@ -1008,22 +1551,20 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', () => {
+    // --- ЛОГИКА ВКЛАДОК ---
     const links = document.querySelectorAll('.toc a');
     const sections = document.querySelectorAll('.tab-section');
 
     function switchTab(targetId) {
-      // Переключение активного класса у кнопок
       links.forEach(link => {
         if (link.getAttribute('href') === '#' + targetId) {
           link.classList.add('active');
-          // Прокрутка меню к активной вкладке на мобильных
           link.scrollIntoView({ behavior: 'smooth', block: 'nearest', inline: 'center' });
         } else {
           link.classList.remove('active');
         }
       });
 
-      // Переключение отображения секций
       sections.forEach(section => {
         if (section.id === targetId) {
           section.classList.add('active');
@@ -1032,24 +1573,20 @@
         }
       });
 
-      // Прокрутка вверх к началу контента при переключении
       window.scrollTo({ top: 0, behavior: 'smooth' });
     }
 
-    // Обработка кликов
     links.forEach(link => {
       link.addEventListener('click', (e) => {
         e.preventDefault();
         const targetId = link.getAttribute('href').substring(1);
         switchTab(targetId);
-        
         try {
           history.replaceState(null, null, '#' + targetId);
         } catch (err) {}
       });
     });
 
-    // Проверка хэша при загрузке страницы
     if (window.location.hash) {
       const initialId = window.location.hash.substring(1);
       const initialSection = document.getElementById(initialId);
@@ -1057,6 +1594,56 @@
         switchTab(initialId);
       }
     }
+
+    // --- ЛОГИКА КАЛЬКУЛЯТОРА СЕБЕСТОИМОСТИ ---
+    const calcInputs = document.querySelectorAll('.calc-input');
+    const totalDisplay = document.getElementById('total-cost-result');
+
+    function recalculate() {
+      let totalCost = 0;
+      const rows = document.querySelectorAll('.rfq-table tbody tr');
+      
+      rows.forEach(row => {
+        const qtyInput = row.querySelector('.input-qty');
+        const priceInput = row.querySelector('.input-price');
+        const costSpan = row.querySelector('.cost-value');
+        const unitCell = row.cells[9]; // Столбец "Ед. цены"
+
+        if (qtyInput && priceInput && costSpan && unitCell) {
+          const qty = parseFloat(qtyInput.value) || 0;
+          const price = parseFloat(priceInput.value) || 0;
+          const unitText = unitCell.innerText.toLowerCase();
+          
+          let multiplier = 1;
+
+          // Умная конвертация валюты за единицу в стоимость 1 штуки
+          if (unitText.includes('usd/кг')) {
+            multiplier = 0.001; // Вводим граммы -> переводим в кг
+          } else if (unitText.includes('usd/т')) {
+            multiplier = 0.000001; // Вводим граммы -> переводим в тонны
+          } else if (unitText.includes('usd/м²')) {
+            multiplier = 1; // Вводим метры квадратные
+          } else if (unitText.includes('usd/м')) {
+            multiplier = 1; // Вводим метры погонные
+          } else if (unitText.includes('usd/шт')) {
+            multiplier = 1; // Вводим штуки
+          }
+
+          const cost = qty * multiplier * price;
+          costSpan.textContent = cost.toFixed(4);
+          totalCost += cost;
+        }
+      });
+
+      if (totalDisplay) {
+        totalDisplay.textContent = totalCost.toFixed(4) + ' USD';
+      }
+    }
+
+    // Навешиваем слушатели на все поля ввода
+    calcInputs.forEach(input => {
+      input.addEventListener('input', recalculate);
+    });
   });
 </script>
 </body>
